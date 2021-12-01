@@ -7,7 +7,7 @@ class Day1Test {
     fun shouldPassPart1(){
         val input = InputLoader().loadInput(1)
         val day1 = Day1(input)
-        assertEquals(-1, day1.runPart1())
+        assertEquals(1446, day1.runPart1())
     }
 
     @Test

@@ -22,18 +22,37 @@ class Day2(input: List<String>) : Day<List<Day2.Movement>, Int>(input) {
         var horizontal = 0
         var depth = 0
 
-        for(movement in input){
-            when(movement.command){
-                Command.FORWARD -> horizontal += movement.units
-                Command.DOWN -> depth += movement.units
-                Command.UP -> depth -= movement.units
-            }
-        }
+        executeMovements(input,
+            forward = { units -> horizontal += units },
+            down = { units -> depth += units },
+            up = { units -> depth -= units }
+        )
 
         return horizontal * depth
     }
 
     override fun runPart2(input: List<Movement>): Int {
-        return -1
+        var horizontal = 0
+        var depth = 0
+        var aim = 0
+
+        executeMovements(input,
+            forward = { units -> horizontal += units; depth += aim * units },
+            down = { units -> aim += units },
+            up = { units -> aim -= units }
+        )
+
+        return horizontal * depth
+
+    }
+
+    private fun executeMovements(movements: List<Movement>, forward: (units: Int) -> Unit, down: (units: Int) -> Unit, up: (units: Int) -> Unit){
+        for(movement in movements){
+            when(movement.command){
+                Command.FORWARD -> forward(movement.units)
+                Command.DOWN -> down(movement.units)
+                Command.UP -> up(movement.units)
+            }
+        }
     }
 }

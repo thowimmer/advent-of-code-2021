@@ -27,20 +27,36 @@ class Day4(input: List<String>) : Day<Day4.Bingo, Int>(input) {
 
     class Bingo(val numbers: List<Int>, val boards: List<Board>){
 
-        private var winner : Board? = null
+        private var winners = mutableMapOf<Int, Board>()
 
         fun numberDrawn(drawnNumber: Int) {
-            boards.forEach { it.numberDrawn(drawnNumber) }
-            winner = boards.firstOrNull() { it.hasBingo() }
+            for((boardIndex, board) in boards.withIndex()){
+                board.numberDrawn(drawnNumber)
+                if(board.hasBingo() && !winners.contains(boardIndex)){
+                    winners[boardIndex] = board
+                }
+            }
         }
 
-        fun isGameOver() = winner != null
+        fun firstWinnerSum() = winners.values.firstOrNull()?.sumUnmarked()
 
-        fun winningSum() = winner?.sumUnmarked()
+        fun lastWinnerSum() : Int ? {
+            val winnerBoards = winners.values
+            if(winnerBoards.size == boards.size){
+                return winnerBoards.last().sumUnmarked()
+            }
+
+            return null
+        }
+
+        fun reset() {
+            winners = mutableMapOf()
+            boards.forEach { it.reset() }
+        }
     }
 
-    class Board(val board : Array<Array<Int>>){
-        private val checked = Array(5) { Array(5){ false } }
+    class Board(private val board : Array<Array<Int>>){
+        private var checked = Array(5) { Array(5){ false } }
 
         fun numberDrawn(drawnNumber: Int) {
             iterateRowWise(board) { row, column, number ->
@@ -82,6 +98,10 @@ class Day4(input: List<String>) : Day<Day4.Bingo, Int>(input) {
             return sum
         }
 
+        fun reset() {
+            checked = Array(5) { Array(5){ false } }
+        }
+
         private fun <T> iterateRowWise(matrix: Array<Array<T>>, step: (row : Int, column: Int, value: T) -> Unit){
             for(row in board.indices){
                 for(column in board[row].indices){
@@ -91,17 +111,21 @@ class Day4(input: List<String>) : Day<Day4.Bingo, Int>(input) {
         }
     }
 
-    override fun runPart1(input: Bingo): Int {
-       for(drawnNumber in input.numbers){
+    override fun runPart1(input: Bingo) = play(input) { it.firstWinnerSum() }
+
+    override fun runPart2(input: Bingo) : Int {
+        return play(input) { it.lastWinnerSum() }
+    }
+
+    private fun play(input: Bingo, winnerSum: (input: Bingo)-> Int?) : Int {
+        input.reset()
+        for(drawnNumber in input.numbers){
             input.numberDrawn(drawnNumber)
-            if(input.isGameOver()){
-                return input.winningSum()!! * drawnNumber
+            winnerSum(input)?.let {
+                return it * drawnNumber
             }
-       }
+        }
         return -1
     }
 
-    override fun runPart2(input: Bingo): Int {
-        return -1
-    }
 }

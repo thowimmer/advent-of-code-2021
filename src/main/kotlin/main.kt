@@ -1,7 +1,7 @@
 fun main() {
     val inputLoader = InputLoader()
 
-    for(day in 1..4){
+    for(day in 1..5){
         println("--------------DAY$day--------------")
         val inputForDay = inputLoader.loadInput(day)
         val dayClass = Class.forName("Day$day")

@@ -1,32 +1,22 @@
-class Day6(input: List<String>) : Day<List<Int>, Int>(input) {
+class Day6(input: List<String>) : Day<List<Int>, Long>(input) {
 
     override fun convertInput(input: List<String>): List<Int> = input[0].split(',').map { it.toInt() }
 
-    //the number of days until it creates a new lanternfish -> 7 (0-6)
-    //new fish + 2 (0-8)
+    override fun runPart1(input: List<Int>) : Long = countLanternFishAfterDays(input, 80)
 
-    override fun runPart1(input: List<Int>) : Int {
-        val fishPopulation = mutableListOf<Int>()
-        fishPopulation.addAll(input)
+    override fun runPart2(input: List<Int>) : Long = countLanternFishAfterDays(input, 256)
 
-        for(day in 1..80){
-            val newFishPopulation = mutableListOf<Int>()
-            for((i, fish) in fishPopulation.withIndex()){
-                if(fish == 0){
-                    fishPopulation[i] = 6
-                    newFishPopulation.add(8)
-                }else {
-                    fishPopulation[i] = fish - 1
-                }
-            }
+    private fun countLanternFishAfterDays(initialFish: List<Int>, days: Int) : Long {
+        val fishTimers = LongArray(9)
+        initialFish.forEach { fishTimers[it]++ } //at the beginning there are some fish with different timers
 
-            fishPopulation.addAll(newFishPopulation)
+        for(day in 1..days){
+            val currentZeroFish = fishTimers[0]
+            (1..8).forEach { fishTimers[it-1] = fishTimers[it] } // every non 0 fish has the time decreased by 1
+            fishTimers[8] = currentZeroFish // every 0 fish creates a new 8 fish
+            fishTimers[6] += currentZeroFish // every 0 fish is reset to 6
         }
 
-        return fishPopulation.size
-    }
-
-    override fun runPart2(input: List<Int>) : Int {
-        return -1
+        return fishTimers.sum()
     }
 }

@@ -1,7 +1,9 @@
 class Day12(input: List<String>) : Day<Day12.Cave, Int>(input) {
 
     class Cave(val name: String, val next: MutableList<Cave>){
+        val isStart = name == "start"
         val isEnd = name == "end"
+        val isBig = name.all { it.isUpperCase() }
         fun connect(node: Cave) { next.add(node) }
     }
 
@@ -24,10 +26,43 @@ class Day12(input: List<String>) : Day<Day12.Cave, Int>(input) {
 
     override fun runPart1(input: Cave): Int {
         return traversePath(listOf(input)) { cave, path ->
-            cave.name.all { it.isUpperCase() } || !path.any { cave.name == it.name }
+            //big caves are large enough that it might be worth visiting them multiple times
+            if(cave.isBig){
+                return@traversePath true
+            }
+
+            //all paths you find should visit small caves at most once
+            if( path.none { it.name == cave.name }) {
+                return@traversePath true
+            }
+
+            return@traversePath false
         }.count()
     }
 
+    override fun runPart2(input: Cave): Int {
+        return traversePath(listOf(input)) { cave, path ->
+            //big caves can be visited any number of times
+            if(cave.isBig){
+                return@traversePath true
+            }
+
+            //the caves named start and end can only be visited exactly once each
+            if(cave.isStart){
+                return@traversePath false
+            }
+
+            //a single small cave can be visited at most twice
+            if( path.none { it.name == cave.name }) {
+                return@traversePath true
+            }
+            if(path.filterNot { it.isBig }.groupBy { it }.none {it.value.size == 2}) {
+                return@traversePath true
+            }
+
+            return@traversePath false
+        }.count()
+    }
 
     private fun traversePath(path: List<Cave>, canVisit : (cave: Cave, path: List<Cave>) -> Boolean) : List<List<String>>{
         val lastCave = path.last()
@@ -39,10 +74,6 @@ class Day12(input: List<String>) : Day<Day12.Cave, Int>(input) {
         return lastCave.next
             .filter { canVisit(it, path) }
             .flatMap { traversePath(path + it, canVisit) }
-    }
-
-    override fun runPart2(input: Cave): Int {
-        return -1
     }
 
 }

@@ -1,19 +1,22 @@
-class Day11(input: List<String>) : Day<Array<Array<Int>>, Long>(input) {
+class Day11(input: List<String>) : Day<Array<Array<Int>>, Int>(input) {
     override fun convertInput(input: List<String>): Array<Array<Int>> {
         return input.map { line -> line .toCharArray().map { char -> char.digitToInt() }.toTypedArray() }.toTypedArray()
     }
 
-    override fun runPart1(input: Array<Array<Int>>): Long {
-        var totalFlashes = 0
+    override fun runPart1(input: Array<Array<Int>>) = (1..100).reduce { totalFlashes, _ -> totalFlashes + executeStep(input) }
 
-        for(step in 1..100){
-            val flashes = Array(input.size) { Array(input[0].size){ false } }
-            iterate(input) { row, column, energyLevel -> input[row][column] = energyLevel + 1 }
-            iterate(input) { row, column, energyLevel -> if(energyLevel > 9 && !flashes[row][column]) flash(row, column, input, flashes) }
-            iterate(input) { row, column, energyLevel -> if(energyLevel > 9) input[row][column] = 0}
-            totalFlashes += flashes.flatten().count { it }
-        }
-        return totalFlashes.toLong()
+    override fun runPart2(input: Array<Array<Int>>): Int {
+        var step = 0
+        while (!input.flatten().all { it == 0 }) { executeStep(input) ; step++ }
+        return step
+    }
+
+    private fun executeStep(energyLevels: Array<Array<Int>>) : Int {
+        val flashes = Array(energyLevels.size) { Array(energyLevels[0].size){ false } }
+        iterate(energyLevels) { row, column, energyLevel -> energyLevels[row][column] = energyLevel + 1 }
+        iterate(energyLevels) { row, column, energyLevel -> if(energyLevel > 9 && !flashes[row][column]) flash(row, column, energyLevels, flashes) }
+        iterate(energyLevels) { row, column, energyLevel -> if(energyLevel > 9) energyLevels[row][column] = 0}
+        return flashes.flatten().count { it }
     }
 
     private fun iterate(energyLevels: Array<Array<Int>>, next: (row: Int, column: Int, energyLevel: Int) -> Unit){
@@ -46,12 +49,8 @@ class Day11(input: List<String>) : Day<Array<Array<Int>>, Long>(input) {
             Pair(row-1, column), //top
             Pair(row-1, column+1) //top-right
         ).filter {
-               (it.first >= 0 && it.first < energyLevels.size)
-            && (it.second >= 0 && it.second < energyLevels[0].size)
+            (it.first >= 0 && it.first < energyLevels.size)
+                    && (it.second >= 0 && it.second < energyLevels[0].size)
         }.forEach { next(it.first, it.second) }
-    }
-
-    override fun runPart2(input: Array<Array<Int>>): Long {
-        return -1
     }
 }

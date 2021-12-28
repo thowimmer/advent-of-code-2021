@@ -7,13 +7,13 @@ class Day11Test {
     fun shouldPassPart1(){
         val input = InputLoader().loadInput(11)
         val day11 = Day11(input)
-        assertEquals(1656, day11.runPart1())
+        assertEquals(1691, day11.runPart1())
     }
 
     @Test
     fun shouldPassPart2(){
         val input = InputLoader().loadInput(11)
         val day11 = Day11(input)
-        assertEquals(-1, day11.runPart2())
+        assertEquals(216, day11.runPart2())
     }
 }

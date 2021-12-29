@@ -7,13 +7,26 @@ class Day13Test {
     fun shouldPassPart1(){
         val input = InputLoader().loadInput(13)
         val day13 = Day13(input)
-        assertEquals(724, day13.runPart1())
+        assertEquals(724, day13.runPart1().flatten().count {it == '#'})
     }
 
     @Test
     fun shouldPassPart2(){
         val input = InputLoader().loadInput(13)
         val day13 = Day13(input)
-        assertEquals(-1, day13.runPart2())
+        assertEquals("""
+         ##  ###    ## ###  #### ###  #  # #    
+        #  # #  #    # #  # #    #  # #  # #    
+        #    #  #    # ###  ###  #  # #  # #    
+        #    ###     # #  # #    ###  #  # #    
+        #  # #    #  # #  # #    # #  #  # #    
+         ##  #     ##  ###  #### #  #  ##  #### 
+        """.trimIndent(), day13.runPart2().asString())
+    }
+
+    private fun <T> Array<Array<T>>.asString() : String {
+        val sb = StringBuilder()
+        this.iterate({ _, _, value -> sb.append(value)}, { y -> if(y > 0) sb.append("\n")})
+        return sb.toString()
     }
 }

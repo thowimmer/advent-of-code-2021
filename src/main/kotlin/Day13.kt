@@ -1,4 +1,4 @@
-class Day13(input: List<String>) : Day<Day13.Input, Int>(input) {
+class Day13(input: List<String>) : Day<Day13.Input, Array<Array<Char>>>(input) {
     override fun convertInput(input: List<String>): Input{
         val instructionsSeparatorIndex = input.indexOf("")
         val paper = parsePaper(input, instructionsSeparatorIndex)
@@ -19,7 +19,7 @@ class Day13(input: List<String>) : Day<Day13.Input, Int>(input) {
             }
         }
 
-        val paper = Array(maxY+1) { Array(maxX+1){ '.' } }
+        val paper = Array(maxY+1) { Array(maxX+1){ ' ' } }
         paper.iterate({x, y, _ -> if(dots.any { it.first == x && it.second == y }) paper[y][x] = '#' })
         return paper
     }
@@ -34,13 +34,9 @@ class Day13(input: List<String>) : Day<Day13.Input, Int>(input) {
 
     class Input(val paper: Array<Array<Char>>, val foldInstructions: List<Pair<Char, Int>>)
 
-    override fun runPart1(input: Input): Int {
-        return fold(input.paper, input.foldInstructions.subList(0,1)).flatten().count { it == '#' }
-    }
+    override fun runPart1(input: Input) = fold(input.paper, input.foldInstructions.subList(0,1))
 
-    override fun runPart2(input: Input): Int {
-        return -1
-    }
+    override fun runPart2(input: Input) = fold(input.paper, input.foldInstructions)
 
     private fun fold(paper: Array<Array<Char>>, foldInstructions: List<Pair<Char, Int>>) : Array<Array<Char>> {
         var foldedPaper = paper.copyOf()
@@ -76,10 +72,8 @@ class Day13(input: List<String>) : Day<Day13.Input, Int>(input) {
 
         return foldedPaper
     }
-
 }
 
-fun <T> Array<Array<T>>.print2DArray() = this.iterate({ _, _, value -> print(value)}, { print("\n")})
 
 fun <T> Array<Array<T>>.iterate(next: (x: Int, y: Int, value: T) -> Unit, nextRow: ((y: Int) -> Unit)? = null) {
     for(y in this.indices){
